@@ -96,36 +96,78 @@ Our model achieves strong performance across all metrics:
      * Recall: 83.1%
      * F1-score: 82.4%
 
-![Confusion Matrix](results/visualizations/confusion_matrix.png)
-*Figure 4: Confusion matrix showing model predictions*
+### 3.2 Visualisations et Analyses
 
-![ROC Curve](results/visualizations/roc_curve.png)
-*Figure 5: ROC curve with AUC score*
+#### Distribution des Classes
+![Distribution des Classes](./results/visualizations/class_distribution.png)
+*Figure 1: Distribution des classes de sentiment dans le jeu de données*
 
-### 3.2 Feature Importance Analysis
+#### Matrice de Confusion
+![Matrice de Confusion](./results/visualizations/confusion_matrix.png)
+*Figure 2: Matrice de confusion montrant les prédictions du modèle*
 
-The model reveals several interesting patterns in feature importance:
+#### Courbe ROC
+![Courbe ROC](./results/visualizations/roc_curve.png)
+*Figure 3: Courbe ROC avec le score AUC*
 
-![Feature Importance](results/visualizations/feature_importance.png)
-*Figure 6: Top 20 most important features for sentiment classification*
+#### Importance des Caractéristiques
+![Importance des Caractéristiques](./results/visualizations/feature_importance.png)
+*Figure 4: Top 20 des caractéristiques les plus importantes pour la classification*
 
-Key findings:
-1. Strong sentiment indicators (e.g., "love", "hate") have high importance
-2. Contextual phrases (bigrams) provide significant predictive power
-3. Balanced importance between positive and negative features
+#### Analyse des Erreurs
+![Analyse des Erreurs](./results/visualizations/error_analysis.png)
+*Figure 5: Exemples de tweets mal classés avec leurs étiquettes réelles et prédites*
 
-### 3.3 Error Analysis
+#### Comparaison des Performances
+![Comparaison des Performances](./results/visualizations/performance_comparison.png)
+*Figure 6: Comparaison des différentes métriques de performance*
 
-Analysis of misclassified tweets reveals several patterns:
+#### Nuages de Mots
+##### Tweets Positifs
+![Nuage de Mots Positifs](./results/visualizations/wordcloud_positive.png)
+*Figure 7a: Nuage de mots des tweets positifs*
 
-![Error Analysis](results/visualizations/error_analysis.png)
-*Figure 7: Examples of misclassified tweets with true and predicted labels*
+##### Tweets Négatifs
+![Nuage de Mots Négatifs](./results/visualizations/wordcloud_negative.png)
+*Figure 7b: Nuage de mots des tweets négatifs*
 
-Common error patterns:
-1. Sarcasm and irony
-2. Complex negations
-3. Context-dependent sentiment
-4. Mixed emotions in single tweets
+#### Mots les Plus Fréquents
+##### Tweets Positifs
+![Top Mots Positifs](./results/visualizations/top_words_positive.png)
+*Figure 8a: Mots les plus fréquents dans les tweets positifs*
+
+##### Tweets Négatifs
+![Top Mots Négatifs](./results/visualizations/top_words_negative.png)
+*Figure 8b: Mots les plus fréquents dans les tweets négatifs*
+
+#### Distribution de la Longueur des Tweets
+![Distribution de la Longueur des Tweets](./results/visualizations/tweet_length_distribution.png)
+*Figure 9: Distribution de la longueur des tweets par sentiment*
+
+#### Distribution des Sentiments par Utilisateur
+![Distribution des Sentiments par Utilisateur](./results/visualizations/user_sentiment_distribution.png)
+*Figure 10: Distribution des sentiments par utilisateur*
+
+#### Activité des Utilisateurs
+![Activité des Utilisateurs](./results/visualizations/user_activity.png)
+*Figure 11: Distribution de l'activité des utilisateurs*
+
+#### Évolution des Sentiments dans le Temps
+![Évolution des Sentiments dans le Temps](./results/visualizations/sentiment_over_time.png)
+*Figure 12: Évolution des sentiments au fil du temps*
+
+### 3.3 Analyse des Résultats
+
+#### Points Clés de l'Importance des Caractéristiques
+1. Forte importance des indicateurs de sentiment (ex: "love", "hate")
+2. Puissance prédictive significative des phrases contextuelles (bigrammes)
+3. Importance équilibrée entre les caractéristiques positives et négatives
+
+#### Patterns d'Erreurs Communs
+1. Sarcasme et ironie
+2. Négations complexes
+3. Sentiment dépendant du contexte
+4. Émotions mixtes dans les tweets
 
 ## 4. Discussion
 
