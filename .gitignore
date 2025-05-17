@@ -41,6 +41,20 @@ logs/
 # Résultats et visualisations
 results/visualizations/*
 !results/visualizations/.gitkeep
+!results/visualizations/confusion_matrix.png
+!results/visualizations/roc_curve.png
+!results/visualizations/feature_importance.png
+!results/visualizations/error_analysis.png
+!results/visualizations/performance_comparison.png
+!results/visualizations/class_distribution.png
+!results/visualizations/top_words_positive.png
+!results/visualizations/top_words_negative.png
+!results/visualizations/wordcloud_positive.png
+!results/visualizations/wordcloud_negative.png
+!results/visualizations/tweet_length_distribution.png
+!results/visualizations/user_sentiment_distribution.png
+!results/visualizations/user_activity.png
+!results/visualizations/sentiment_over_time.png
 
 # IDE
 .idea/
