@@ -1,80 +1,106 @@
 import logging
 from pathlib import Path
-from src.data.load_dataset import load_sentiment140_dataset, analyze_dataset, prepare_dataset
-from src.data.preprocess import TweetPreprocessor
-from src.models.train import TweetClassifier
-from src.utils.helpers import setup_logging, create_directory, save_metrics
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-# Configuration du logger
+from src.data.load_dataset import load_sentiment140_dataset
+from src.preprocessing.tweet_preprocessor import TweetPreprocessor
+from src.models.classical_models import TweetClassifier
+
+# Configuration du logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/pipeline.log'),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger(__name__)
 
+def setup_directories():
+    """Crée les répertoires nécessaires."""
+    directories = ['data', 'models', 'results', 'logs']
+    for directory in directories:
+        Path(directory).mkdir(exist_ok=True)
+        logger.info(f"Directory created: {directory}")
+
 def main():
-    """Pipeline complet d'analyse et d'entraînement."""
-    # Configuration
-    setup_logging('logs/pipeline.log')
-    create_directory('logs')
-    create_directory('models')
-    create_directory('results')
-    
-    # 1. Chargement et analyse des données
-    logger.info("=== Étape 1: Chargement et analyse des données ===")
-    dataset_path = 'data/training.1600000.processed.noemoticon.csv'
-    df = load_sentiment140_dataset(dataset_path)
-    analyze_dataset(df)
-    
-    # 2. Préparation des données
-    logger.info("\n=== Étape 2: Préparation des données ===")
-    train_df, test_df = prepare_dataset(df, sample_size=100000)
-    
-    # 3. Prétraitement des données
-    logger.info("\n=== Étape 3: Prétraitement des données ===")
-    preprocessor = TweetPreprocessor(language='english')  # Sentiment140 est en anglais
-    
-    logger.info("Prétraitement des données d'entraînement...")
-    train_processed = preprocessor.preprocess_dataset(train_df, 'text', 'sentiment')
-    
-    logger.info("Prétraitement des données de test...")
-    test_processed = preprocessor.preprocess_dataset(test_df, 'text', 'sentiment')
-    
-    # Sauvegarde des données prétraitées
-    train_processed.to_csv('data/processed/train_processed.csv', index=False)
-    test_processed.to_csv('data/processed/test_processed.csv', index=False)
-    
-    # 4. Entraînement et évaluation des modèles
-    logger.info("\n=== Étape 4: Entraînement et évaluation des modèles ===")
-    models = ['logistic_regression', 'naive_bayes', 'svm']
-    results = {}
-    
-    for model_type in models:
-        logger.info(f"\nEntraînement du modèle {model_type}...")
+    """Fonction principale pour le pipeline d'analyse de sentiment."""
+    try:
+        # Setup
+        setup_directories()
+        logger.info("Starting sentiment analysis pipeline...")
         
-        # Initialisation et entraînement
-        classifier = TweetClassifier(model_type=model_type)
-        X_train = train_processed['processed_text']
-        y_train = train_processed['sentiment']
-        X_test = test_processed['processed_text']
-        y_test = test_processed['sentiment']
+        # Charger les données
+        logger.info("Loading dataset...")
+        try:
+            df = load_sentiment140_dataset('data/training.1600000.processed.noemoticon.csv')
+            logger.info(f"Dataset loaded successfully: {len(df)} tweets")
+            
+            # Vérifier la distribution des classes
+            class_dist = df['sentiment'].value_counts()
+            logger.info(f"Class distribution in full dataset:\n{class_dist}")
+            
+        except Exception as e:
+            logger.error(f"Error loading dataset: {str(e)}")
+            raise
         
-        # Entraînement
-        classifier.train(X_train, y_train)
+        # Prétraitement
+        try:
+            logger.info("Initializing preprocessor...")
+            preprocessor = TweetPreprocessor(language='english')
+            logger.info("Preprocessor initialized successfully")
+            
+            logger.info("Starting preprocessing...")
+            df_processed = preprocessor.preprocess_dataset(df, 'text', 'sentiment')
+            logger.info("Data preprocessing completed successfully")
+            
+            # Vérifier la distribution des classes
+            class_dist = df_processed['sentiment'].value_counts()
+            logger.info(f"Class distribution after preprocessing:\n{class_dist}")
+            
+        except Exception as e:
+            logger.error(f"Error during preprocessing: {str(e)}")
+            raise
         
-        # Évaluation
-        report = classifier.evaluate(X_test, y_test)
-        results[model_type] = report
+        # Entraînement et évaluation
+        try:
+            logger.info("Starting model training...")
+            
+            # Split des données
+            X_train, X_test, y_train, y_test = train_test_split(
+                df_processed['processed_text'],
+                df_processed['sentiment'],
+                test_size=0.2,
+                random_state=42
+            )
+            
+            logger.info(f"Training set size: {len(X_train)}")
+            logger.info(f"Test set size: {len(X_test)}")
+            
+            # Entraînement du modèle
+            classifier = TweetClassifier()
+            classifier.train(X_train, y_train)
+            
+            # Évaluation
+            report = classifier.evaluate(X_test, y_test)
+            logger.info("\nClassification Report:")
+            logger.info(pd.DataFrame(report).transpose())
+            
+            # Sauvegarde du modèle
+            classifier.save_model()
+            logger.info("Model training completed successfully")
+            
+        except Exception as e:
+            logger.error(f"Error during model training: {str(e)}")
+            raise
         
-        # Sauvegarde du modèle
-        classifier.save_model()
-    
-    # 5. Sauvegarde des résultats comparatifs
-    logger.info("\n=== Étape 5: Sauvegarde des résultats comparatifs ===")
-    save_metrics(results, 'results/model_comparison.json')
-    
-    # Affichage des résultats
-    print("\n=== Résultats comparatifs des modèles ===")
-    for model_type, report in results.items():
-        print(f"\nModèle : {model_type}")
-        print(f"Accuracy : {report['accuracy']:.3f}")
-        print(f"F1-score moyen : {report['macro avg']['f1-score']:.3f}")
+        logger.info("Pipeline completed successfully!")
+        
+    except Exception as e:
+        logger.error(f"Error in pipeline: {str(e)}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main() 
