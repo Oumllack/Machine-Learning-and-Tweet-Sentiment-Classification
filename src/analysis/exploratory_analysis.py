@@ -45,46 +45,45 @@ class TweetAnalyzer:
         return self.df
     
     def analyze_temporal_patterns(self):
-        """Analyse les patterns temporels des tweets."""
-        logger.info("Analyse des patterns temporels...")
+        """Analyze temporal patterns of tweets."""
+        logger.info("Analyzing temporal patterns...")
         
-        # Distribution des tweets par jour
+        # Distribution of tweets by day
         plt.figure(figsize=(15, 6))
         self.df.groupby(self.df['date'].dt.date).size().plot(kind='line')
-        plt.title('Distribution des tweets par jour')
+        plt.title('Tweet Distribution Over Time')
         plt.xlabel('Date')
-        plt.ylabel('Nombre de tweets')
+        plt.ylabel('Number of Tweets')
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.savefig(self.viz_dir / 'tweets_over_time.png')
         plt.close()
         
-        # Distribution des sentiments par jour
+        # Distribution of sentiments by day
         plt.figure(figsize=(15, 6))
         daily_sentiment = self.df.groupby([self.df['date'].dt.date, 'sentiment']).size().unstack()
         daily_sentiment.plot(kind='line')
-        plt.title('Distribution des sentiments par jour')
+        plt.title('Sentiment Distribution Over Time')
         plt.xlabel('Date')
-        plt.ylabel('Nombre de tweets')
-        plt.legend(['Négatif', 'Positif'])
+        plt.ylabel('Number of Tweets')
+        plt.legend(['Negative', 'Positive'])
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.savefig(self.viz_dir / 'sentiment_over_time.png')
         plt.close()
         
     def analyze_text_length(self):
-        """Analyse la distribution de la longueur des tweets."""
-        logger.info("Analyse de la longueur des tweets...")
+        """Analyze tweet length distribution."""
+        logger.info("Analyzing tweet length distribution...")
         
         self.df['tweet_length'] = self.df['text'].str.len()
         
-        # Distribution de la longueur des tweets
         plt.figure(figsize=(12, 6))
-        sns.histplot(data=self.df, x='tweet_length', hue='sentiment', 
-                    multiple="stack", bins=50)
-        plt.title('Distribution de la longueur des tweets par sentiment')
-        plt.xlabel('Longueur du tweet')
-        plt.ylabel('Nombre de tweets')
+        sns.histplot(data=self.df, x='tweet_length', hue='sentiment', bins=50)
+        plt.title('Tweet Length Distribution by Sentiment')
+        plt.xlabel('Tweet Length (characters)')
+        plt.ylabel('Count')
+        plt.legend(['Negative', 'Positive'])
         plt.tight_layout()
         plt.savefig(self.viz_dir / 'tweet_length_distribution.png')
         plt.close()
@@ -94,131 +93,115 @@ class TweetAnalyzer:
         logger.info("\nStatistiques de longueur par sentiment :\n" + str(length_stats))
         
     def generate_wordclouds(self):
-        """Génère des nuages de mots pour les tweets positifs et négatifs."""
-        logger.info("Génération des nuages de mots...")
+        """Generate word clouds for each sentiment."""
+        logger.info("Generating word clouds...")
         
-        # Prétraitement du texte
-        def preprocess_text(text):
-            # Conversion en minuscules et suppression des caractères spéciaux
-            text = text.lower()
-            text = ' '.join([word for word in text.split() if word.isalnum()])
-            return text
+        # Positive sentiment word cloud
+        positive_text = ' '.join(self.df[self.df['sentiment'] == 1]['text'])
+        wordcloud = WordCloud(width=800, height=400, background_color='white').generate(positive_text)
         
-        # Nuage de mots pour les tweets positifs
-        positive_text = ' '.join(self.df[self.df['sentiment'] == 1]['text'].apply(preprocess_text))
-        if positive_text.strip():  # Vérifie si le texte n'est pas vide
-            wordcloud_positive = WordCloud(width=800, height=400, 
-                                         background_color='white',
-                                         max_words=100).generate(positive_text)
-            
-            plt.figure(figsize=(10, 5))
-            plt.imshow(wordcloud_positive, interpolation='bilinear')
-            plt.axis('off')
-            plt.title('Nuage de mots - Tweets positifs')
-            plt.tight_layout()
-            plt.savefig(self.viz_dir / 'wordcloud_positive.png')
-            plt.close()
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.title('Word Cloud - Positive Sentiment')
+        plt.axis('off')
+        plt.tight_layout()
+        plt.savefig(self.viz_dir / 'wordcloud_positive.png')
+        plt.close()
         
-        # Nuage de mots pour les tweets négatifs
-        negative_text = ' '.join(self.df[self.df['sentiment'] == 0]['text'].apply(preprocess_text))
-        if negative_text.strip():  # Vérifie si le texte n'est pas vide
-            wordcloud_negative = WordCloud(width=800, height=400,
-                                         background_color='white',
-                                         max_words=100).generate(negative_text)
-            
-            plt.figure(figsize=(10, 5))
-            plt.imshow(wordcloud_negative, interpolation='bilinear')
-            plt.axis('off')
-            plt.title('Nuage de mots - Tweets négatifs')
-            plt.tight_layout()
-            plt.savefig(self.viz_dir / 'wordcloud_negative.png')
-            plt.close()
+        # Negative sentiment word cloud
+        negative_text = ' '.join(self.df[self.df['sentiment'] == 0]['text'])
+        wordcloud = WordCloud(width=800, height=400, background_color='white').generate(negative_text)
+        
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.title('Word Cloud - Negative Sentiment')
+        plt.axis('off')
+        plt.tight_layout()
+        plt.savefig(self.viz_dir / 'wordcloud_negative.png')
+        plt.close()
         
     def analyze_common_words(self):
-        """Analyse les mots les plus communs par sentiment."""
-        logger.info("Analyse des mots les plus communs...")
+        """Analyze most common words by sentiment."""
+        logger.info("Analyzing common words...")
         
-        def get_common_words(texts, n=20):
-            # Prétraitement du texte
-            words = ' '.join(texts).lower().split()
-            words = [w for w in words if w not in self.stop_words and len(w) > 2 and w.isalnum()]
-            return Counter(words).most_common(n)
+        # Positive tweets
+        positive_words = ' '.join(self.df[self.df['sentiment'] == 1]['text'])
+        wordcloud = WordCloud(width=800, height=400, background_color='white').generate(positive_words)
         
-        # Mots communs pour les tweets positifs
-        positive_words = get_common_words(self.df[self.df['sentiment'] == 1]['text'])
-        if positive_words:  # Vérifie si la liste n'est pas vide
-            plt.figure(figsize=(12, 6))
-            words, counts = zip(*positive_words)
-            plt.barh(words, counts)
-            plt.title('20 mots les plus communs dans les tweets positifs')
-            plt.xlabel('Fréquence')
-            plt.ylabel('Mots')
-            plt.tight_layout()
-            plt.savefig(self.viz_dir / 'common_words_positive.png')
-            plt.close()
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.title('Most Common Words in Positive Tweets')
+        plt.axis('off')
+        plt.tight_layout()
+        plt.savefig(self.viz_dir / 'common_words_positive.png')
+        plt.close()
         
-        # Mots communs pour les tweets négatifs
-        negative_words = get_common_words(self.df[self.df['sentiment'] == 0]['text'])
-        if negative_words:  # Vérifie si la liste n'est pas vide
-            plt.figure(figsize=(12, 6))
-            words, counts = zip(*negative_words)
-            plt.barh(words, counts)
-            plt.title('20 mots les plus communs dans les tweets négatifs')
-            plt.xlabel('Fréquence')
-            plt.ylabel('Mots')
-            plt.tight_layout()
-            plt.savefig(self.viz_dir / 'common_words_negative.png')
-            plt.close()
+        # Negative tweets
+        negative_words = ' '.join(self.df[self.df['sentiment'] == 0]['text'])
+        wordcloud = WordCloud(width=800, height=400, background_color='white').generate(negative_words)
+        
+        plt.figure(figsize=(10, 5))
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.title('Most Common Words in Negative Tweets')
+        plt.axis('off')
+        plt.tight_layout()
+        plt.savefig(self.viz_dir / 'common_words_negative.png')
+        plt.close()
         
     def analyze_user_activity(self):
-        """Analyse l'activité des utilisateurs."""
-        logger.info("Analyse de l'activité des utilisateurs...")
+        """Analyze user activity patterns."""
+        logger.info("Analyzing user activity...")
         
-        # Nombre de tweets par utilisateur
+        # Number of tweets per user
         user_activity = self.df['user'].value_counts()
         
         plt.figure(figsize=(12, 6))
         user_activity.head(20).plot(kind='bar')
-        plt.title('Top 20 utilisateurs les plus actifs')
-        plt.xlabel('Utilisateur')
-        plt.ylabel('Nombre de tweets')
+        plt.title('Top 20 Most Active Users')
+        plt.xlabel('User')
+        plt.ylabel('Number of Tweets')
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.savefig(self.viz_dir / 'user_activity.png')
         plt.close()
         
-        # Distribution du nombre de tweets par utilisateur
+        # Distribution of tweets per user
         plt.figure(figsize=(12, 6))
         sns.histplot(user_activity, bins=50)
-        plt.title('Distribution du nombre de tweets par utilisateur')
-        plt.xlabel('Nombre de tweets')
-        plt.ylabel('Nombre d\'utilisateurs')
+        plt.title('Distribution of Tweets per User')
+        plt.xlabel('Number of Tweets')
+        plt.ylabel('Number of Users')
         plt.tight_layout()
         plt.savefig(self.viz_dir / 'user_activity_distribution.png')
         plt.close()
         
     def analyze_sentiment_patterns(self):
-        """Analyse les patterns de sentiment."""
-        logger.info("Analyse des patterns de sentiment...")
+        """Analyze sentiment distribution."""
+        logger.info("Analyzing sentiment distribution...")
         
-        # Distribution des sentiments
-        plt.figure(figsize=(8, 6))
-        self.df['sentiment'].value_counts().plot(kind='pie', autopct='%1.1f%%')
-        plt.title('Distribution des sentiments')
-        plt.ylabel('')
+        plt.figure(figsize=(10, 6))
+        self.df['sentiment'].value_counts().plot(kind='bar')
+        plt.title('Overall Sentiment Distribution')
+        plt.xlabel('Sentiment')
+        plt.ylabel('Number of Tweets')
+        plt.xticks([0, 1], ['Negative', 'Positive'])
         plt.tight_layout()
         plt.savefig(self.viz_dir / 'sentiment_distribution.png')
         plt.close()
         
-        # Analyse des sentiments par utilisateur
-        user_sentiment = self.df.groupby('user')['sentiment'].agg(['mean', 'count'])
-        user_sentiment = user_sentiment[user_sentiment['count'] >= 10]  # Utilisateurs avec au moins 10 tweets
+    def analyze_user_sentiment(self):
+        """Analyze user sentiment patterns."""
+        logger.info("Analyzing user sentiment patterns...")
+        
+        # Average sentiment by user
+        user_sentiment = self.df.groupby('user')['sentiment'].mean()
         
         plt.figure(figsize=(12, 6))
-        sns.histplot(user_sentiment['mean'], bins=50)
-        plt.title('Distribution du sentiment moyen par utilisateur')
-        plt.xlabel('Sentiment moyen (0=Négatif, 1=Positif)')
-        plt.ylabel('Nombre d\'utilisateurs')
+        user_sentiment.head(20).plot(kind='bar')
+        plt.title('Average Sentiment for Top 20 Users')
+        plt.xlabel('User')
+        plt.ylabel('Average Sentiment (0=Negative, 1=Positive)')
+        plt.xticks(rotation=45)
         plt.tight_layout()
         plt.savefig(self.viz_dir / 'user_sentiment_distribution.png')
         plt.close()
@@ -266,6 +249,7 @@ class TweetAnalyzer:
         self.analyze_common_words()
         self.analyze_user_activity()
         self.analyze_sentiment_patterns()
+        self.analyze_user_sentiment()
         self.generate_summary_report()
         
         logger.info("Analyse complète terminée. Les visualisations sont disponibles dans le dossier 'results/visualizations'")
