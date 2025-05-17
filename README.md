@@ -269,33 +269,33 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Visualisations
 
 ### Distribution des Classes
-![Distribution des Classes](results/visualizations/class_distribution.png)
+![Distribution des Classes](./results/visualizations/class_distribution.png)
 
 ### Nuages de Mots
 #### Tweets Positifs
-![Nuage de Mots Positifs](results/visualizations/wordcloud_1.png)
+![Nuage de Mots Positifs](./results/visualizations/wordcloud_1.png)
 
 #### Tweets Négatifs
-![Nuage de Mots Négatifs](results/visualizations/wordcloud_0.png)
+![Nuage de Mots Négatifs](./results/visualizations/wordcloud_0.png)
 
 ### Matrice de Confusion
-![Matrice de Confusion](results/visualizations/confusion_matrix.png)
+![Matrice de Confusion](./results/visualizations/confusion_matrix.png)
 
 ### Courbe ROC
-![Courbe ROC](results/visualizations/roc_curve.png)
+![Courbe ROC](./results/visualizations/roc_curve.png)
 
 ### Importance des Caractéristiques
-![Importance des Caractéristiques](results/visualizations/feature_importance.png)
+![Importance des Caractéristiques](./results/visualizations/feature_importance.png)
 
 ### Analyse des Erreurs
-![Analyse des Erreurs](results/visualizations/error_analysis.png)
+![Analyse des Erreurs](./results/visualizations/error_analysis.png)
 
 ### Comparaison des Performances
-![Comparaison des Performances](results/visualizations/performance_comparison.png)
+![Comparaison des Performances](./results/visualizations/performance_comparison.png)
 
 ### Mots les Plus Fréquents
 #### Tweets Positifs
-![Top Mots Positifs](results/visualizations/top_words_1.png)
+![Top Mots Positifs](./results/visualizations/top_words_1.png)
 
 #### Tweets Négatifs
-![Top Mots Négatifs](results/visualizations/top_words_0.png) 
+![Top Mots Négatifs](./results/visualizations/top_words_0.png) 
