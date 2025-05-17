@@ -273,10 +273,10 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ### Nuages de Mots
 #### Tweets Positifs
-![Nuage de Mots Positifs](./results/visualizations/wordcloud_1.png)
+![Nuage de Mots Positifs](./results/visualizations/wordcloud_positive.png)
 
 #### Tweets Négatifs
-![Nuage de Mots Négatifs](./results/visualizations/wordcloud_0.png)
+![Nuage de Mots Négatifs](./results/visualizations/wordcloud_negative.png)
 
 ### Matrice de Confusion
 ![Matrice de Confusion](./results/visualizations/confusion_matrix.png)
@@ -295,7 +295,19 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ### Mots les Plus Fréquents
 #### Tweets Positifs
-![Top Mots Positifs](./results/visualizations/top_words_1.png)
+![Top Mots Positifs](./results/visualizations/top_words_positive.png)
 
 #### Tweets Négatifs
-![Top Mots Négatifs](./results/visualizations/top_words_0.png) 
+![Top Mots Négatifs](./results/visualizations/top_words_negative.png)
+
+### Distribution de la Longueur des Tweets
+![Distribution de la Longueur des Tweets](./results/visualizations/tweet_length_distribution.png)
+
+### Distribution des Sentiments par Utilisateur
+![Distribution des Sentiments par Utilisateur](./results/visualizations/user_sentiment_distribution.png)
+
+### Activité des Utilisateurs
+![Activité des Utilisateurs](./results/visualizations/user_activity.png)
+
+### Évolution des Sentiments dans le Temps
+![Évolution des Sentiments dans le Temps](./results/visualizations/sentiment_over_time.png) 
