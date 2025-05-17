@@ -96,78 +96,78 @@ Our model achieves strong performance across all metrics:
      * Recall: 83.1%
      * F1-score: 82.4%
 
-### 3.2 Visualisations et Analyses
+### 3.2 Visualizations and Analysis
 
-#### Distribution des Classes
-![Distribution des Classes](./results/visualizations/class_distribution.png)
-*Figure 1: Distribution des classes de sentiment dans le jeu de données*
+#### Class Distribution
+![Class Distribution](./results/visualizations/class_distribution.png)
+*Figure 1: Distribution of sentiment classes in the dataset*
 
-#### Matrice de Confusion
-![Matrice de Confusion](./results/visualizations/confusion_matrix.png)
-*Figure 2: Matrice de confusion montrant les prédictions du modèle*
+#### Confusion Matrix
+![Confusion Matrix](./results/visualizations/confusion_matrix.png)
+*Figure 2: Confusion matrix showing model predictions*
 
-#### Courbe ROC
-![Courbe ROC](./results/visualizations/roc_curve.png)
-*Figure 3: Courbe ROC avec le score AUC*
+#### ROC Curve
+![ROC Curve](./results/visualizations/roc_curve.png)
+*Figure 3: ROC curve with AUC score*
 
-#### Importance des Caractéristiques
-![Importance des Caractéristiques](./results/visualizations/feature_importance.png)
-*Figure 4: Top 20 des caractéristiques les plus importantes pour la classification*
+#### Feature Importance
+![Feature Importance](./results/visualizations/feature_importance.png)
+*Figure 4: Top 20 most important features for classification*
 
-#### Analyse des Erreurs
-![Analyse des Erreurs](./results/visualizations/error_analysis.png)
-*Figure 5: Exemples de tweets mal classés avec leurs étiquettes réelles et prédites*
+#### Error Analysis
+![Error Analysis](./results/visualizations/error_analysis.png)
+*Figure 5: Examples of misclassified tweets with their true and predicted labels*
 
-#### Comparaison des Performances
-![Comparaison des Performances](./results/visualizations/performance_comparison.png)
-*Figure 6: Comparaison des différentes métriques de performance*
+#### Performance Comparison
+![Performance Comparison](./results/visualizations/performance_comparison.png)
+*Figure 6: Comparison of different performance metrics*
 
-#### Nuages de Mots
-##### Tweets Positifs
-![Nuage de Mots Positifs](./results/visualizations/wordcloud_positive.png)
-*Figure 7a: Nuage de mots des tweets positifs*
+#### Word Clouds
+##### Positive Tweets
+![Positive Word Cloud](./results/visualizations/wordcloud_positive.png)
+*Figure 7a: Word cloud of positive tweets*
 
-##### Tweets Négatifs
-![Nuage de Mots Négatifs](./results/visualizations/wordcloud_negative.png)
-*Figure 7b: Nuage de mots des tweets négatifs*
+##### Negative Tweets
+![Negative Word Cloud](./results/visualizations/wordcloud_negative.png)
+*Figure 7b: Word cloud of negative tweets*
 
-#### Mots les Plus Fréquents
-##### Tweets Positifs
-![Top Mots Positifs](./results/visualizations/top_words_positive.png)
-*Figure 8a: Mots les plus fréquents dans les tweets positifs*
+#### Most Common Words
+##### Positive Tweets
+![Top Positive Words](./results/visualizations/top_words_positive.png)
+*Figure 8a: Most common words in positive tweets*
 
-##### Tweets Négatifs
-![Top Mots Négatifs](./results/visualizations/top_words_negative.png)
-*Figure 8b: Mots les plus fréquents dans les tweets négatifs*
+##### Negative Tweets
+![Top Negative Words](./results/visualizations/top_words_negative.png)
+*Figure 8b: Most common words in negative tweets*
 
-#### Distribution de la Longueur des Tweets
-![Distribution de la Longueur des Tweets](./results/visualizations/tweet_length_distribution.png)
-*Figure 9: Distribution de la longueur des tweets par sentiment*
+#### Tweet Length Distribution
+![Tweet Length Distribution](./results/visualizations/tweet_length_distribution.png)
+*Figure 9: Distribution of tweet lengths by sentiment*
 
-#### Distribution des Sentiments par Utilisateur
-![Distribution des Sentiments par Utilisateur](./results/visualizations/user_sentiment_distribution.png)
-*Figure 10: Distribution des sentiments par utilisateur*
+#### User Sentiment Distribution
+![User Sentiment Distribution](./results/visualizations/user_sentiment_distribution.png)
+*Figure 10: Distribution of sentiments by user*
 
-#### Activité des Utilisateurs
-![Activité des Utilisateurs](./results/visualizations/user_activity.png)
-*Figure 11: Distribution de l'activité des utilisateurs*
+#### User Activity
+![User Activity](./results/visualizations/user_activity.png)
+*Figure 11: Distribution of user activity*
 
-#### Évolution des Sentiments dans le Temps
-![Évolution des Sentiments dans le Temps](./results/visualizations/sentiment_over_time.png)
-*Figure 12: Évolution des sentiments au fil du temps*
+#### Sentiment Evolution Over Time
+![Sentiment Evolution Over Time](./results/visualizations/sentiment_over_time.png)
+*Figure 12: Evolution of sentiments over time*
 
-### 3.3 Analyse des Résultats
+### 3.3 Results Analysis
 
-#### Points Clés de l'Importance des Caractéristiques
-1. Forte importance des indicateurs de sentiment (ex: "love", "hate")
-2. Puissance prédictive significative des phrases contextuelles (bigrammes)
-3. Importance équilibrée entre les caractéristiques positives et négatives
+#### Key Feature Importance Findings
+1. Strong importance of sentiment indicators (e.g., "love", "hate")
+2. Significant predictive power of contextual phrases (bigrams)
+3. Balanced importance between positive and negative features
 
-#### Patterns d'Erreurs Communs
-1. Sarcasme et ironie
-2. Négations complexes
-3. Sentiment dépendant du contexte
-4. Émotions mixtes dans les tweets
+#### Common Error Patterns
+1. Sarcasm and irony
+2. Complex negations
+3. Context-dependent sentiment
+4. Mixed emotions in single tweets
 
 ## 4. Discussion
 
