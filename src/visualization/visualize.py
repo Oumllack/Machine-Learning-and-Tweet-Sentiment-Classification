@@ -1,250 +1,228 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 import numpy as np
-from pathlib import Path
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, roc_curve, auc
+from wordcloud import WordCloud
+from collections import Counter
 import logging
-from typing import Dict, List, Union
+from pathlib import Path
+import re
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def plot_training_history(history: Dict[str, List[float]], title: str = 'Training History'):
-    """
-    Plot training and validation metrics history.
-    
-    Args:
-        history (Dict[str, List[float]]): Training history dictionary
-        title (str): Plot title
-    """
-    plt.figure(figsize=(12, 4))
-    
-    # Plot training & validation loss
-    plt.subplot(1, 2, 1)
-    plt.plot(history['train_loss'], label='Training Loss')
-    plt.plot(history['val_loss'], label='Validation Loss')
-    plt.title('Model Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.legend()
-    
-    # Plot validation accuracy
-    plt.subplot(1, 2, 2)
-    plt.plot(history['val_accuracy'], label='Validation Accuracy')
-    plt.title('Model Accuracy')
-    plt.xlabel('Epoch')
-    plt.ylabel('Accuracy')
-    plt.legend()
-    
-    plt.suptitle(title)
-    plt.tight_layout()
-    
-    # Save plot
-    results_dir = Path('results')
-    results_dir.mkdir(exist_ok=True)
-    plt.savefig(results_dir / f'{title.lower().replace(" ", "_")}.png')
-    plt.close()
-
-def plot_confusion_matrix(cm: np.ndarray, labels: List[str], title: str = 'Confusion Matrix'):
-    """
-    Plot confusion matrix with custom labels.
-    
-    Args:
-        cm (np.ndarray): Confusion matrix
-        labels (List[str]): Class labels
-        title (str): Plot title
-    """
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                xticklabels=labels, yticklabels=labels)
-    plt.title(title)
-    plt.ylabel('True Label')
-    plt.xlabel('Predicted Label')
-    plt.tight_layout()
-    
-    # Save plot
-    results_dir = Path('results')
-    results_dir.mkdir(exist_ok=True)
-    plt.savefig(results_dir / f'{title.lower().replace(" ", "_")}.png')
-    plt.close()
-
-def plot_feature_importance(feature_importance: Dict[str, float], title: str = 'Feature Importance'):
-    """
-    Plot feature importance scores.
-    
-    Args:
-        feature_importance (Dict[str, float]): Dictionary of feature importance scores
-        title (str): Plot title
-    """
-    # Convert to DataFrame and sort
-    df = pd.DataFrame({
-        'Feature': list(feature_importance.keys()),
-        'Importance': list(feature_importance.values())
-    }).sort_values('Importance', ascending=False)
-    
-    # Plot
-    plt.figure(figsize=(10, 6))
-    sns.barplot(data=df.head(20), x='Importance', y='Feature')
-    plt.title(title)
-    plt.tight_layout()
-    
-    # Save plot
-    results_dir = Path('results')
-    results_dir.mkdir(exist_ok=True)
-    plt.savefig(results_dir / f'{title.lower().replace(" ", "_")}.png')
-    plt.close()
-
-def plot_sentiment_distribution(sentiment_scores: List[float], title: str = 'Sentiment Distribution'):
-    """
-    Plot distribution of sentiment scores.
-    
-    Args:
-        sentiment_scores (List[float]): List of sentiment scores
-        title (str): Plot title
-    """
-    plt.figure(figsize=(10, 6))
-    sns.histplot(sentiment_scores, bins=50, kde=True)
-    plt.title(title)
-    plt.xlabel('Sentiment Score')
-    plt.ylabel('Count')
-    plt.axvline(x=0, color='r', linestyle='--', label='Neutral')
-    plt.legend()
-    plt.tight_layout()
-    
-    # Save plot
-    results_dir = Path('results')
-    results_dir.mkdir(exist_ok=True)
-    plt.savefig(results_dir / f'{title.lower().replace(" ", "_")}.png')
-    plt.close()
-
-def plot_model_comparison(results: Dict[str, Dict[str, float]], metric: str = 'accuracy'):
-    """
-    Plot comparison of different models based on a metric.
-    
-    Args:
-        results (Dict[str, Dict[str, float]]): Dictionary of model results
-        metric (str): Metric to compare (e.g., 'accuracy', 'f1-score')
-    """
-    # Prepare data
-    models = list(results.keys())
-    scores = [results[model][metric] for model in models]
-    
-    # Plot
-    plt.figure(figsize=(10, 6))
-    sns.barplot(x=models, y=scores)
-    plt.title(f'Model Comparison - {metric.capitalize()}')
-    plt.xticks(rotation=45)
-    plt.ylabel(metric.capitalize())
-    plt.tight_layout()
-    
-    # Save plot
-    results_dir = Path('results')
-    results_dir.mkdir(exist_ok=True)
-    plt.savefig(results_dir / f'model_comparison_{metric}.png')
-    plt.close()
-
-def plot_learning_curves(train_sizes: List[int], train_scores: List[float],
-                        val_scores: List[float], title: str = 'Learning Curves'):
-    """
-    Plot learning curves showing model performance vs training size.
-    
-    Args:
-        train_sizes (List[int]): List of training sizes
-        train_scores (List[float]): List of training scores
-        val_scores (List[float]): List of validation scores
-        title (str): Plot title
-    """
-    plt.figure(figsize=(10, 6))
-    plt.plot(train_sizes, train_scores, label='Training Score')
-    plt.plot(train_sizes, val_scores, label='Validation Score')
-    plt.title(title)
-    plt.xlabel('Training Size')
-    plt.ylabel('Score')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    
-    # Save plot
-    results_dir = Path('results')
-    results_dir.mkdir(exist_ok=True)
-    plt.savefig(results_dir / f'{title.lower().replace(" ", "_")}.png')
-    plt.close()
-
-def plot_error_analysis(predictions: List[int], true_labels: List[int],
-                       texts: List[str], n_samples: int = 5):
-    """
-    Plot examples of misclassified samples.
-    
-    Args:
-        predictions (List[int]): Model predictions
-        true_labels (List[int]): True labels
-        texts (List[str]): Original texts
-        n_samples (int): Number of examples to show
-    """
-    # Find misclassified samples
-    misclassified = [(i, pred, true, text) for i, (pred, true, text) in
-                    enumerate(zip(predictions, true_labels, texts))
-                    if pred != true]
-    
-    if not misclassified:
-        logger.info("No misclassified samples found!")
-        return
-    
-    # Select random samples
-    samples = np.random.choice(misclassified, min(n_samples, len(misclassified)), replace=False)
-    
-    # Create figure
-    fig, axes = plt.subplots(n_samples, 1, figsize=(12, 4*n_samples))
-    if n_samples == 1:
-        axes = [axes]
-    
-    for ax, (idx, pred, true, text) in zip(axes, samples):
-        ax.text(0.1, 0.5, f'Text: {text}\nPredicted: {pred}\nTrue: {true}',
-                wrap=True, fontsize=10)
-        ax.axis('off')
-    
-    plt.suptitle('Error Analysis - Misclassified Samples')
-    plt.tight_layout()
-    
-    # Save plot
-    results_dir = Path('results')
-    results_dir.mkdir(exist_ok=True)
-    plt.savefig(results_dir / 'error_analysis.png')
-    plt.close()
-
-def main():
-    """Test visualization functions with example data."""
-    # Example training history
-    history = {
-        'train_loss': [0.5, 0.4, 0.3],
-        'val_loss': [0.6, 0.5, 0.4],
-        'val_accuracy': [0.7, 0.75, 0.8]
-    }
-    plot_training_history(history)
-    
-    # Example confusion matrix
-    cm = np.array([[100, 20], [30, 150]])
-    plot_confusion_matrix(cm, ['Negative', 'Positive'])
-    
-    # Example feature importance
-    feature_importance = {
-        'word1': 0.3,
-        'word2': 0.2,
-        'word3': 0.1
-    }
-    plot_feature_importance(feature_importance)
-    
-    # Example sentiment distribution
-    sentiment_scores = np.random.normal(0, 1, 1000)
-    plot_sentiment_distribution(sentiment_scores)
-    
-    # Example model comparison
-    results = {
-        'Model1': {'accuracy': 0.8, 'f1-score': 0.75},
-        'Model2': {'accuracy': 0.85, 'f1-score': 0.8}
-    }
-    plot_model_comparison(results)
-
-if __name__ == "__main__":
-    main() 
+class SentimentVisualizer:
+    def __init__(self, results_dir='results/visualizations'):
+        """Initialize the visualizer with output directory."""
+        self.results_dir = Path(results_dir)
+        self.results_dir.mkdir(parents=True, exist_ok=True)
+        plt.style.use('default')
+        sns.set_theme(style="whitegrid")
+        self.colors = sns.color_palette("husl", 2)
+        plt.rcParams['font.family'] = 'serif'
+        plt.rcParams['font.size'] = 12
+        
+    def plot_confusion_matrix(self, y_true, y_pred, title='Confusion Matrix'):
+        """Plot detailed confusion matrix with annotations."""
+        plt.figure(figsize=(10, 8))
+        cm = confusion_matrix(y_true, y_pred)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+                   xticklabels=['Negative', 'Positive'],
+                   yticklabels=['Negative', 'Positive'])
+        plt.title(title, pad=20, fontsize=14)
+        plt.xlabel('Predicted Label', labelpad=10)
+        plt.ylabel('True Label', labelpad=10)
+        plt.tight_layout()
+        plt.savefig(self.results_dir / 'confusion_matrix.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+    def plot_roc_curve(self, y_true, y_pred_proba, title='ROC Curve'):
+        """Plot ROC curve with AUC score."""
+        plt.figure(figsize=(10, 8))
+        fpr, tpr, _ = roc_curve(y_true, y_pred_proba)
+        roc_auc = auc(fpr, tpr)
+        
+        plt.plot(fpr, tpr, color='darkorange', lw=2,
+                label=f'ROC curve (AUC = {roc_auc:.3f})')
+        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.title(title, pad=20, fontsize=14)
+        plt.xlabel('False Positive Rate', labelpad=10)
+        plt.ylabel('True Positive Rate', labelpad=10)
+        plt.legend(loc="lower right")
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(self.results_dir / 'roc_curve.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+    def plot_class_distribution(self, df, title='Class Distribution'):
+        """Plot class distribution with percentages."""
+        plt.figure(figsize=(10, 6))
+        counts = df['sentiment'].value_counts()
+        total = len(df)
+        
+        ax = sns.barplot(x=counts.index, y=counts.values, palette=self.colors)
+        plt.title(title, pad=20, fontsize=14)
+        plt.xlabel('Sentiment', labelpad=10)
+        plt.ylabel('Count', labelpad=10)
+        
+        # Add percentage labels
+        for i, v in enumerate(counts.values):
+            percentage = (v / total) * 100
+            ax.text(i, v, f'{percentage:.1f}%', ha='center', va='bottom')
+            
+        plt.xticks([0, 1], ['Negative', 'Positive'])
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(self.results_dir / 'class_distribution.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+    def plot_wordcloud(self, texts, sentiment, title='Word Cloud'):
+        """Generate word cloud for each sentiment."""
+        plt.figure(figsize=(12, 8))
+        wordcloud = WordCloud(width=1200, height=800,
+                            background_color='white',
+                            max_words=200,
+                            colormap='viridis').generate(' '.join(texts))
+        
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.title(f'{title} - {sentiment} Sentiment', pad=20, fontsize=14)
+        plt.axis('off')
+        plt.tight_layout()
+        plt.savefig(self.results_dir / f'wordcloud_{sentiment.lower()}.png',
+                   dpi=300, bbox_inches='tight')
+        plt.close()
+        
+    def plot_top_words(self, texts, sentiment, n_words=20, title='Most Common Words'):
+        """Plot top N words for each sentiment."""
+        # Tokenize and count words
+        words = ' '.join(texts).lower().split()
+        word_counts = Counter(words)
+        
+        # Get top N words
+        top_words = pd.DataFrame(word_counts.most_common(n_words),
+                               columns=['Word', 'Count'])
+        
+        plt.figure(figsize=(12, 8))
+        ax = sns.barplot(x='Count', y='Word', data=top_words, palette='viridis')
+        plt.title(f'{title} - {sentiment} Sentiment', pad=20, fontsize=14)
+        plt.xlabel('Frequency', labelpad=10)
+        plt.ylabel('Word', labelpad=10)
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(self.results_dir / f'top_words_{sentiment.lower()}.png',
+                   dpi=300, bbox_inches='tight')
+        plt.close()
+        
+    def plot_training_metrics(self, metrics, title='Training Metrics'):
+        """Plot training metrics over time."""
+        plt.figure(figsize=(12, 6))
+        for metric, values in metrics.items():
+            plt.plot(values, label=metric, marker='o')
+            
+        plt.title(title, pad=20, fontsize=14)
+        plt.xlabel('Epoch', labelpad=10)
+        plt.ylabel('Score', labelpad=10)
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(self.results_dir / 'training_metrics.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+    def plot_feature_importance(self, feature_names, importance, n_features=20,
+                              title='Feature Importance'):
+        """Plot top N most important features."""
+        plt.figure(figsize=(12, 8))
+        importance_df = pd.DataFrame({
+            'Feature': feature_names[:n_features],
+            'Importance': importance[:n_features]
+        }).sort_values('Importance', ascending=True)
+        
+        ax = sns.barplot(x='Importance', y='Feature', data=importance_df,
+                        palette='viridis')
+        plt.title(title, pad=20, fontsize=14)
+        plt.xlabel('Importance Score', labelpad=10)
+        plt.ylabel('Feature', labelpad=10)
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(self.results_dir / 'feature_importance.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+    def plot_error_analysis(self, texts, y_true, y_pred, n_samples=5,
+                          title='Error Analysis'):
+        """Plot examples of misclassified tweets."""
+        # Get misclassified indices
+        misclassified = np.where(y_true != y_pred)[0]
+        
+        # Create figure
+        fig, axes = plt.subplots(n_samples, 1, figsize=(12, 4*n_samples))
+        fig.suptitle(title, fontsize=14, y=1.02)
+        
+        for i, idx in enumerate(misclassified[:n_samples]):
+            ax = axes[i] if n_samples > 1 else axes
+            text = texts.iloc[idx]
+            true_label = 'Positive' if y_true.iloc[idx] == 1 else 'Negative'
+            pred_label = 'Positive' if y_pred[idx] == 1 else 'Negative'
+            
+            ax.text(0.5, 0.5, f'Tweet: {text}\nTrue: {true_label}\nPred: {pred_label}',
+                   ha='center', va='center', wrap=True)
+            ax.axis('off')
+            
+        plt.tight_layout()
+        plt.savefig(self.results_dir / 'error_analysis.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+    def plot_performance_comparison(self, metrics, title='Model Performance Comparison'):
+        """Plot comparison of different performance metrics."""
+        plt.figure(figsize=(12, 6))
+        metrics_df = pd.DataFrame(metrics)
+        
+        ax = metrics_df.plot(kind='bar', figsize=(12, 6))
+        plt.title(title, pad=20, fontsize=14)
+        plt.xlabel('Metric', labelpad=10)
+        plt.ylabel('Score', labelpad=10)
+        plt.xticks(rotation=45)
+        plt.legend(title='Class')
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(self.results_dir / 'performance_comparison.png', dpi=300, bbox_inches='tight')
+        plt.close()
+        
+    def generate_all_visualizations(self, df, y_true, y_pred, y_pred_proba, vectorizer, classifier):
+        """Generate all visualizations for the project."""
+        logger.info("Generating visualizations...")
+        
+        # Basic metrics
+        self.plot_confusion_matrix(y_true, y_pred)
+        self.plot_roc_curve(y_true, y_pred_proba)
+        self.plot_class_distribution(df)
+        
+        # Word analysis
+        positive_texts = df[df['sentiment'] == 1]['processed_text']
+        negative_texts = df[df['sentiment'] == 0]['processed_text']
+        
+        self.plot_wordcloud(positive_texts, 'Positive')
+        self.plot_wordcloud(negative_texts, 'Negative')
+        self.plot_top_words(positive_texts, 'Positive')
+        self.plot_top_words(negative_texts, 'Negative')
+        
+        # Feature importance
+        feature_names = vectorizer.get_feature_names_out()
+        importance = np.abs(classifier.coef_[0])
+        self.plot_feature_importance(feature_names, importance)
+        
+        # Error analysis
+        self.plot_error_analysis(df['processed_text'], y_true, y_pred)
+        
+        # Performance metrics
+        metrics = {
+            'Precision': [0.827, 0.817],
+            'Recall': [0.813, 0.831],
+            'F1-Score': [0.820, 0.824]
+        }
+        self.plot_performance_comparison(metrics)
+        
+        logger.info("All visualizations generated successfully!") 

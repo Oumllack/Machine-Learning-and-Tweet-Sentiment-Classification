@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from src.data.load_dataset import load_sentiment140_dataset
 from src.preprocessing.tweet_preprocessor import TweetPreprocessor
 from src.models.classical_models import TweetClassifier
+from src.visualization.visualize import SentimentVisualizer
 
 # Configuration du logging
 logging.basicConfig(
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 def setup_directories():
     """Crée les répertoires nécessaires."""
-    directories = ['data', 'models', 'results', 'logs']
+    directories = ['data', 'models', 'results', 'logs', 'results/visualizations']
     for directory in directories:
         Path(directory).mkdir(exist_ok=True)
         logger.info(f"Directory created: {directory}")
@@ -91,6 +92,26 @@ def main():
             # Sauvegarde du modèle
             classifier.save_model()
             logger.info("Model training completed successfully")
+            
+            # Génération des visualisations
+            logger.info("Generating visualizations...")
+            visualizer = SentimentVisualizer()
+            
+            # Obtenir les prédictions pour les visualisations
+            X_test_vec = classifier.vectorizer.transform(X_test)
+            y_pred = classifier.classifier.predict(X_test_vec)
+            y_pred_proba = classifier.classifier.predict_proba(X_test_vec)[:, 1]
+            
+            # Générer toutes les visualisations
+            visualizer.generate_all_visualizations(
+                df_processed,
+                y_test,
+                y_pred,
+                y_pred_proba,
+                classifier.vectorizer,
+                classifier.classifier
+            )
+            logger.info("Visualizations generated successfully")
             
         except Exception as e:
             logger.error(f"Error during model training: {str(e)}")

@@ -20,29 +20,40 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
+# Environnement virtuel
 venv/
 ENV/
 env/
+.env
+
+# Fichiers de données
+data/*.csv
+!data/.gitkeep
+
+# Modèles sauvegardés
+models/*.joblib
+!models/.gitkeep
+
+# Logs
+logs/
+*.log
+
+# Résultats et visualisations
+results/visualizations/*
+!results/visualizations/.gitkeep
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+.DS_Store
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb
 
-# Data files
-*.csv
-*.json
-*.pkl
-*.model
-
-# Logs
-*.log
-
-# OS
-.DS_Store
-Thumbs.db 
+# Fichiers de configuration locaux
+.env
+.env.local
+.env.*.local 
